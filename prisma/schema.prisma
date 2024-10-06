@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Ad {
+  id          Int     @id @default(autoincrement())
+  title       String
+  descreption String
+  imagePath   String?
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  title     String    @unique
+  imagePath String?
+  Product   Product[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String   @unique
+  isAdmin   Boolean  @default(false)
+  imagePath String?
+  balance   Float    @default(0)
+  Like      Like[]
+  Rating    Rating[]
+  Order     Order[]
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  category    Category      @relation(references: [id], fields: [categoryId])
+  categoryId  Int
+  title       String
+  descreption String
+  rating      Float         @default(0)
+  price       Float
+  availables  Int           @default(0)
+  imagePath   String?
+  Like        Like[]
+  Rating      Rating[]
+  LinkedOrder LinkedOrder[]
+}
+
+model Like {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(references: [id], fields: [userId])
+  userId    Int
+  product   Product @relation(references: [id], fields: [productId])
+  productId Int
+}
+
+model Rating {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(references: [id], fields: [userId])
+  userId    Int
+  product   Product @relation(references: [id], fields: [productId])
+  productId Int
+  rating    Float   @default(0)
+}
+
+model Order {
+  id          Int           @id @default(autoincrement())
+  user        User          @relation(references: [id], fields: [userId])
+  userId      Int
+  total       Float
+  createdDate DateTime?     @default(now())
+  LinkedOrder LinkedOrder[]
+  Payment     Payment?
+}
+
+model LinkedOrder {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(references: [id], fields: [orderId], onDelete: Cascade)
+  orderId   Int
+  product   Product @relation(references: [id], fields: [productId])
+  productId Int
+  quantity  Int     @default(1)
+}
+
+model Payment {
+  id          Int           @id @default(autoincrement())
+  amount      Float         @default(0)
+  paymentDate DateTime?
+  status      PaymentStatus @default(PENDING)
+  Order       Order         @relation(references: [id], fields: [OrderId], onDelete: Cascade)
+  OrderId     Int           @unique
+  paymentType PaymentType
+}
+
+enum PaymentStatus {
+  PENDING
+  REJECTED
+  ACCEPTED
+}
+
+enum PaymentType {
+  VISA
+  MASTER_CARD
+  PAYPAL
+}
