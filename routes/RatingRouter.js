@@ -18,7 +18,7 @@ router.get("/:id", getRateByProduct);
 
 router.use(jwtMiddleware);
 router.post("/", validate(createRateValidator), addRate);
-router.delete("/:id", deleteRate);
+// router.delete("/:id", deleteRate);
 
 router.use(managerValidation);
 router.delete("/byUser/:id", deleteRatesByUser);

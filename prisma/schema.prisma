@@ -72,6 +72,8 @@ model Rating {
   product   Product @relation(references: [id], fields: [productId])
   productId Int
   rating    Float   @default(0)
+
+  @@unique([userId, productId])
 }
 
 model Order {

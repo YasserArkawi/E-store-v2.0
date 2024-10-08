@@ -33,16 +33,10 @@ class RatingService {
       throw new Error("Somthing wrong");
     }
     const subRating = rate || rate2;
-    let finalRating =
-      product?.ratingCount === 0
-        ? subRating?.rating
-        : Number(
-            (
-              (subRating?.rating + data.rating) /
-              (product.ratingCount + 1)
-            ).toPrecision(2)
-          );
-
+    let finalRating = +(
+      (product.rating * product.ratingCount + subRating.rating) /
+      (product.ratingCount + 1)
+    ).toFixed(2);
     subRating.rating = finalRating;
 
     await ProductService.editProduct({
@@ -52,22 +46,22 @@ class RatingService {
     return subRating;
   }
 
-  static async deleteRate(productId, userId) {
-    return await prisma.$transaction([
-      prisma.rating.delete({
-        where: {
-          userId: userId,
-          AND: {
-            productId: productId,
-          },
-        },
-      }),
-      ProductService.editProduct({
-        id: productId,
-        rating: 0,
-      }),
-    ]);
-  }
+  // static async deleteRate(productId, userId) {
+  //   return prisma.$transaction(async (tx) => {
+  //     await ProductService.editProduct({
+  //       id: productId,
+  //       rating: 0,
+  //     });
+  //     return await prisma.rating.delete({
+  //       where: {
+  //         userId_productId: {
+  //           productId: productId,
+  //           userId: userId,
+  //         },
+  //       },
+  //     });
+  //   });
+  // }
 
   static async deleteRatesByUser(id) {
     let ids = await prisma.rating.findMany({

@@ -34,23 +34,23 @@ module.exports = {
     }
   },
 
-  deleteRate: async (req, res) => {
-    try {
-      const productId = req.params.id;
-      const userId = req.user.id;
-      const result = await RatingService.deleteRate(productId, userId);
-      res.status(200).send({
-        data: result,
-        success: true,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
-    }
-  },
+  // deleteRate: async (req, res) => {
+  //   try {
+  //     const productId = +req.params.id;
+  //     const userId = req.user.id;
+  //     const result = await RatingService.deleteRate(productId, userId);
+  //     res.status(200).send({
+  //       data: result,
+  //       success: true,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     res.status(400).send({
+  //       data: error.meta?.cause || error.meta?.target || error.message,
+  //       success: false,
+  //     });
+  //   }
+  // },
 
   // manager //////////////////////////////////////////////////////////
 

@@ -66,6 +66,9 @@ class ProductService {
     } else if (+data?.rating === 0) {
       newCount = -1;
     }
+    if (oldProduct.ratingCount + newCount < 0) {
+      newCount = 0;
+    }
     return await prisma.product.update({
       data: {
         categoryId: +data.categoryId || oldProduct.categoryId,
