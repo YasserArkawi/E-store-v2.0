@@ -48,6 +48,7 @@ model Product {
   title       String
   descreption String
   rating      Float         @default(0)
+  ratingCount Int           @default(0)
   price       Float
   availables  Int           @default(0)
   imagePath   String?

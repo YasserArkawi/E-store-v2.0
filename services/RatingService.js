@@ -12,6 +12,7 @@ class RatingService {
   }
 
   static async addRate(data) {
+    const product = await ProductService.getProductById(data.productId);
     const rate = await prisma.rating.findFirst({
       where: {
         userId: data.userId,
@@ -28,14 +29,19 @@ class RatingService {
       },
     });
 
-    if (!rate && !rate2) {
+    if ((!rate && !rate2) || !product) {
       throw new Error("Somthing wrong");
     }
     const subRating = rate || rate2;
     let finalRating =
-      subRating?.rating === 0 || subRating?.rating === data.rating
+      product?.ratingCount === 0
         ? subRating?.rating
-        : Number(((subRating?.rating + data.rating) / 2).toPrecision(2));
+        : Number(
+            (
+              (subRating?.rating + data.rating) /
+              (product.ratingCount + 1)
+            ).toPrecision(2)
+          );
 
     subRating.rating = finalRating;
 
@@ -44,6 +50,23 @@ class RatingService {
       rating: finalRating,
     });
     return subRating;
+  }
+
+  static async deleteRate(productId, userId) {
+    return await prisma.$transaction([
+      prisma.rating.delete({
+        where: {
+          userId: userId,
+          AND: {
+            productId: productId,
+          },
+        },
+      }),
+      ProductService.editProduct({
+        id: productId,
+        rating: 0,
+      }),
+    ]);
   }
 
   static async deleteRatesByUser(id) {
@@ -72,6 +95,7 @@ class RatingService {
         },
         data: {
           rating: 0,
+          ratingCount: 0,
         },
       }),
     ]);

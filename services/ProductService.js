@@ -60,6 +60,12 @@ class ProductService {
     if (oldProduct.imagePath !== null && data?.imagePath) {
       fs.unlinkSync(oldProduct.imagePath);
     }
+    let newCount;
+    if (+data?.rating) {
+      newCount = 1;
+    } else if (+data?.rating === 0) {
+      newCount = -1;
+    }
     return await prisma.product.update({
       data: {
         categoryId: +data.categoryId || oldProduct.categoryId,
@@ -69,6 +75,9 @@ class ProductService {
         availables: +data.availables || oldProduct.availables,
         rating: +data.rating || oldProduct.rating,
         imagePath: data?.imagePath || oldProduct.imagePath,
+        ratingCount: {
+          increment: newCount || 0,
+        },
       },
       where: {
         id: +data.id,

@@ -5,6 +5,7 @@ const {
   getRateByProduct,
   deleteRatesByUser,
   deleteRatesByProduct,
+  deleteRate,
 } = require("../controllers/RatingController");
 const { jwtMiddleware } = require("../auth/auth");
 const { managerValidation } = require("../middlewares/ManagerValidation");
@@ -17,6 +18,7 @@ router.get("/:id", getRateByProduct);
 
 router.use(jwtMiddleware);
 router.post("/", validate(createRateValidator), addRate);
+router.delete("/:id", deleteRate);
 
 router.use(managerValidation);
 router.delete("/byUser/:id", deleteRatesByUser);
