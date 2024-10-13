@@ -9,8 +9,21 @@ class ProductService {
         availables: {
           not: null || 0,
         },
+        deletedAt: null,
       },
     });
+  }
+
+  static async getAllProductsByIds(ids) {
+    const result = await prisma.product.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+        deletedAt: null,
+      },
+    });
+    return result;
   }
 
   static async getAllAllProducts() {
@@ -29,12 +42,22 @@ class ProductService {
     return await prisma.product.findFirst({
       where: {
         categoryId: +id,
+        availables: {
+          not: null || 0,
+        },
+        deletedAt: null,
       },
     });
   }
 
   static async getMostRatedProducts() {
     return await prisma.product.findMany({
+      where: {
+        availables: {
+          not: null || 0,
+        },
+        deletedAt: null,
+      },
       orderBy: {
         rating: "desc",
       },
@@ -57,9 +80,6 @@ class ProductService {
 
   static async editProduct(data) {
     const oldProduct = await this.getProductById(+data.id);
-    if (oldProduct.imagePath !== null && data?.imagePath) {
-      fs.unlinkSync(oldProduct.imagePath);
-    }
     let newCount;
     if (+data?.rating) {
       newCount = 1;
@@ -69,7 +89,7 @@ class ProductService {
     if (oldProduct.ratingCount + newCount < 0) {
       newCount = 0;
     }
-    return await prisma.product.update({
+    const updatedProduct = await prisma.product.update({
       data: {
         categoryId: +data.categoryId || oldProduct.categoryId,
         title: data.title || oldProduct.title,
@@ -84,6 +104,25 @@ class ProductService {
       },
       where: {
         id: +data.id,
+        deletedAt: null,
+      },
+    });
+    if (oldProduct.imagePath !== null && data?.imagePath) {
+      fs.unlinkSync(oldProduct.imagePath);
+    }
+    return updatedProduct;
+  }
+
+  static async editProductOrder(data, tx) {
+    return tx.product.update({
+      data: {
+        availables: {
+          decrement: data.quantities,
+        },
+      },
+      where: {
+        id: +data.id,
+        deletedAt: null,
       },
     });
   }
@@ -94,13 +133,17 @@ class ProductService {
         id: {
           in: ids,
         },
+        deletedAt: null,
       },
     });
-    const deleted = await prisma.product.deleteMany({
+    const deleted = await prisma.product.updateMany({
       where: {
         id: {
           in: ids,
         },
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
     deleteProducts.map((element) => {

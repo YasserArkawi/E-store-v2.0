@@ -1,14 +1,16 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const fs = require("fs");
+const { myHashing, myComparing } = require("../middlewares/Hashing.js");
 
 class UserService {
   static async registerUser(data) {
+    const password = await myHashing(data.password);
     return await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
-        password: data.password,
+        password: password,
         phone: data.phone,
         imagePath: data.imagePath,
       },
@@ -34,7 +36,8 @@ class UserService {
     if (!user || user.isAdmin === 1) {
       throw new Error("User not found");
     } else {
-      if (user.password === data.password) {
+      const compare = await myComparing(data.password, user.password);
+      if (compare) {
         return user;
       } else {
         throw new Error("Invalid Password");
@@ -68,6 +71,8 @@ class UserService {
   }
 
   static async editUser(data) {
+    // TODO -- make the return a variable and then delete the photo and then return the variable in all edit services.
+
     const oldUser = await prisma.user.findUnique({
       where: {
         id: +data.userId,
@@ -111,8 +116,9 @@ class UserService {
     return await prisma.user.findMany({});
   }
 
-  static async editBalance(data) {
-    return await prisma.user.update({
+  static async editBalance(data, tx) {
+    const client = tx || prisma;
+    return await client.user.update({
       where: {
         id: +data.userId,
       },

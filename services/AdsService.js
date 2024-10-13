@@ -4,13 +4,18 @@ const fs = require("fs");
 
 class AdService {
   static async getAllAds() {
-    return await prisma.ad.findMany({});
+    return await prisma.ad.findMany({
+      where: {
+        deletedAt: null,
+      },
+    });
   }
 
   static async getAdById(id) {
     return await prisma.ad.findUnique({
       where: {
         id: +id,
+        deletedAt: null,
       },
     });
   }
@@ -27,18 +32,21 @@ class AdService {
 
   static async updateAd(data) {
     const ad = await this.getAdById(+data.id);
-    if (ad.imagePath !== null && data.imagePath !== null) {
-      fs.unlinkSync(ad.imagePath);
-    }
-    return prisma.ad.update({
-      where: {
-        id: +data.id,
-      },
-      data: {
-        descreption: data.descreption || ad.descreption,
-        title: data.title || ad.title,
-        imagePath: data.imagePath || ad.imagePath,
-      },
+    return await prisma.$transaction(async (tx) => {
+      if (ad.imagePath !== null && data.imagePath !== null) {
+        fs.unlinkSync(ad.imagePath);
+      }
+      return await tx.ad.update({
+        where: {
+          id: +data.id,
+          deletedAt: null,
+        },
+        data: {
+          descreption: data.descreption || ad.descreption,
+          title: data.title || ad.title,
+          imagePath: data.imagePath || ad.imagePath,
+        },
+      });
     });
   }
 
@@ -48,24 +56,31 @@ class AdService {
         id: {
           in: ids,
         },
+        deletedAt: null,
       },
     });
-    if (deleted.length !== 0) {
-      deleted.map((d) => {
-        if (d.imagePath !== null) {
-          fs.unlinkSync(d.imagePath);
-        }
-      });
-      return await prisma.ad.deleteMany({
-        where: {
-          id: {
-            in: ids,
+    return await prisma.$transaction(async (tx) => {
+      if (deleted.length !== 0) {
+        deleted.map((d) => {
+          if (d.imagePath !== null) {
+            fs.unlinkSync(d.imagePath);
+          }
+        });
+        return await tx.ad.updateMany({
+          data: {
+            deletedAt: new Date(),
           },
-        },
-      });
-    } else {
-      throw new Error("No ads found");
-    }
+          where: {
+            id: {
+              in: ids,
+            },
+            deletedAt: null,
+          },
+        });
+      } else {
+        throw new Error("No ads found.");
+      }
+    });
   }
 }
 

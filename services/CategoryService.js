@@ -5,13 +5,16 @@ const fs = require("fs");
 
 class CategoryService {
   static async getAllCategories() {
-    return await prisma.category.findMany({});
+    return await prisma.category.findMany({
+      deletedAt: null,
+    });
   }
 
   static async getCategoryById(id) {
     return await prisma.category.findFirst({
       where: {
         id: +id,
+        deletedAt: null,
       },
     });
   }
@@ -33,6 +36,7 @@ class CategoryService {
     return await prisma.category.update({
       where: {
         id: +data.id,
+        deletedAt: null,
       },
       data: {
         title: data.title || oldCategory.title,
@@ -42,9 +46,13 @@ class CategoryService {
   }
 
   static async deleteCategory(id) {
-    const deleted = await prisma.category.delete({
+    const deleted = await prisma.category.update({
       where: {
         id: +id,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
     if (deleted.imagePath !== null) {

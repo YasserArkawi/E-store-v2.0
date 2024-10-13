@@ -111,6 +111,22 @@ module.exports = {
     }
   },
 
+  getAllAllOrders: async (req, res) => {
+    try {
+      const result = await OrderService.getAllAllOrders();
+      res.status(200).send({
+        orders: result,
+        success: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({
+        data: error.meta?.cause || error.meta?.target || error.message,
+        success: false,
+      });
+    }
+  },
+
   manageOrder: async (req, res) => {
     try {
       const data = req.body;

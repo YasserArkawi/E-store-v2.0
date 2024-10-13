@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 const { jwtMiddleware } = require("../auth/auth");
@@ -24,7 +25,7 @@ router.use(jwtMiddleware);
 router.use(managerValidation);
 
 router.post("/", adUpload.single("image"), validate(createAdValidator), addAd);
-router.delete("/:id", validate(deleteAdValidator), deleteAd);
+router.delete("/", validate(deleteAdValidator), deleteAd);
 router.put(
   "/:id",
   adUpload.single("image"),

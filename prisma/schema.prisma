@@ -14,10 +14,11 @@ datasource db {
 }
 
 model Ad {
-  id          Int     @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   descreption String
   imagePath   String?
+  deletedAt   DateTime?
 }
 
 model Category {
@@ -25,6 +26,7 @@ model Category {
   title     String    @unique
   imagePath String?
   Product   Product[]
+  deletedAt DateTime?
 }
 
 model User {
@@ -55,6 +57,7 @@ model Product {
   Like        Like[]
   Rating      Rating[]
   LinkedOrder LinkedOrder[]
+  deletedAt   DateTime?
 }
 
 model Like {
@@ -84,6 +87,7 @@ model Order {
   createdDate DateTime?     @default(now())
   LinkedOrder LinkedOrder[]
   Payment     Payment?
+  deletedAt   DateTime?
 }
 
 model LinkedOrder {

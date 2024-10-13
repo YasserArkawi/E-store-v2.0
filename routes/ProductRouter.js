@@ -25,7 +25,7 @@ const { productUpload } = require("../middlewares/Upload");
 
 router.get("/", getAllProducts);
 router.get("/mostRated", getMostRatedProducts);
-router.get("/:id", getProductById);
+router.get("/byId/:id", getProductById);
 
 router.use(jwtMiddleware);
 router.use(managerValidation);
