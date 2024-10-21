@@ -4,9 +4,21 @@ const prisma = new PrismaClient();
 const fs = require("fs");
 
 class CategoryService {
-  static async getAllCategories() {
+  static async getAllCategories(data) {
     return await prisma.category.findMany({
-      deletedAt: null,
+      where: {
+        deletedAt: null,
+      },
+      take: data.take,
+      skip: data.skip,
+    });
+  }
+
+  // All categories for the manager (even deleted categories)
+  static async getAllAllCategories(data) {
+    return await prisma.category.findMany({
+      take: data.take,
+      skip: data.skip,
     });
   }
 
@@ -30,10 +42,8 @@ class CategoryService {
 
   static async editCategory(data) {
     const oldCategory = await this.getCategoryById(+data.id);
-    if (oldCategory.imagePath !== null && data.imagePath !== null) {
-      fs.unlinkSync(oldCategory.imagePath);
-    }
-    return await prisma.category.update({
+
+    const updatedcategory = await prisma.category.update({
       where: {
         id: +data.id,
         deletedAt: null,
@@ -43,6 +53,10 @@ class CategoryService {
         imagePath: data.imagePath || oldCategory.imagePath,
       },
     });
+    if (oldCategory.imagePath !== null && data.imagePath !== null) {
+      fs.unlinkSync(oldCategory.imagePath);
+    }
+    return updatedcategory;
   }
 
   static async deleteCategory(id) {

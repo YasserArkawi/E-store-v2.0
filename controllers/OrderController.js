@@ -78,7 +78,6 @@ module.exports = {
     try {
       const id = req.user.id;
       const data = req.body;
-
       const result = await OrderService.deleteOrder(id, data.ids);
       res.status(200).send({
         data: result,
@@ -97,7 +96,10 @@ module.exports = {
 
   getAllOrders: async (req, res) => {
     try {
-      const result = await OrderService.getAllOrders();
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take };
+      const result = await OrderService.getAllOrders(data);
       res.status(200).send({
         orders: result,
         success: true,
@@ -113,7 +115,10 @@ module.exports = {
 
   getAllAllOrders: async (req, res) => {
     try {
-      const result = await OrderService.getAllAllOrders();
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take };
+      const result = await OrderService.getAllAllOrders(data);
       res.status(200).send({
         orders: result,
         success: true,

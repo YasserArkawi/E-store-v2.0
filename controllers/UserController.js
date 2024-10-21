@@ -26,6 +26,7 @@ module.exports = {
       });
     }
   },
+
   loginUser: async (req, res) => {
     try {
       const data = req.body;
@@ -47,6 +48,7 @@ module.exports = {
       });
     }
   },
+
   managerLogin: async (req, res) => {
     try {
       const data = req.body;      
@@ -128,10 +130,11 @@ module.exports = {
 
   getAllUsers: async (req, res) => {
     try {
-      const results = await UserServices.getAllUsers();
-
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take };
+      const results = await UserServices.getAllUsers(data);
       // implement hashing passwords in the database
-
       results.map((user) => {
         user.password = null;
       });

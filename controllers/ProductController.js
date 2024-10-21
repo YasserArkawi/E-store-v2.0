@@ -3,23 +3,12 @@ const fs = require("fs");
 module.exports = {
   getAllProducts: async (req, res) => {
     try {
-      const results = await ProductService.getAllProducts();
-      res.status(200).send({
-        data: results,
-        success: true,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
-    }
-  },
+      const hPrice = +req.query.price || undefined;
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { hPrice, skip, take };
 
-  getAllAllProducts: async (req, res) => {
-    try {
-      const results = await ProductService.getAllAllProducts();
+      const results = await ProductService.getAllProducts(data);
       res.status(200).send({
         data: results,
         success: true,
@@ -48,9 +37,17 @@ module.exports = {
       });
     }
   },
-  getProductsByCategory: async (req, res) => {
+
+  getRecommend: async (req, res) => {
     try {
-      const results = await ProductService.getProductsByCategory(req.params.id);
+      const results = await ProductService.getProductsByCategory(
+        req.params.categoryId
+      );
+      for (let i = 0; i <= results.length / 2; i++) {
+        let n = Math.floor(Math.random() * results.length);
+        [results[i], results[n]] = [results[n], results[i]];
+      }
+
       res.status(200).send({
         data: results,
         success: true,
@@ -63,6 +60,27 @@ module.exports = {
       });
     }
   },
+
+  getProductsByCategory: async (req, res) => {
+    try {
+      const hPrice = req.query.price;
+      const results = await ProductService.getProductsByCategory(
+        req.params.id,
+        hPrice
+      );
+      res.status(200).send({
+        data: results,
+        success: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({
+        data: error.meta?.cause || error.meta?.target || error.message,
+        success: false,
+      });
+    }
+  },
+
   getMostRatedProducts: async (req, res) => {
     try {
       const results = await ProductService.getMostRatedProducts();
@@ -80,6 +98,25 @@ module.exports = {
   },
 
   // manager /////////////////////////////////////////////////////////
+
+  getAllAllProducts: async (req, res) => {
+    try {
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take };
+      const results = await ProductService.getAllAllProducts(data);
+      res.status(200).send({
+        data: results,
+        success: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({
+        data: error.meta?.cause || error.meta?.target || error.message,
+        success: false,
+      });
+    }
+  },
 
   addProduct: async (req, res) => {
     try {
@@ -101,6 +138,7 @@ module.exports = {
       });
     }
   },
+
   editProduct: async (req, res) => {
     try {
       const data = req.body;
@@ -122,6 +160,7 @@ module.exports = {
       });
     }
   },
+
   deleteProduct: async (req, res) => {
     try {
       const result = await ProductService.deleteProduct(req.body.ids);

@@ -8,6 +8,7 @@ const {
   getMostRatedProducts,
   getProductById,
   getAllAllProducts,
+  getRecommend,
 } = require("../controllers/ProductController");
 const { jwtMiddleware } = require("../auth/auth");
 const { managerValidation } = require("../middlewares/ManagerValidation");
@@ -26,6 +27,7 @@ const { productUpload } = require("../middlewares/Upload");
 router.get("/", getAllProducts);
 router.get("/mostRated", getMostRatedProducts);
 router.get("/byId/:id", getProductById);
+router.get("/recommend/:categoryId", getRecommend);
 
 router.use(jwtMiddleware);
 router.use(managerValidation);

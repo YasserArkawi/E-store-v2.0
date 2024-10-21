@@ -215,6 +215,7 @@ class OrderService {
     return await prisma.order.findMany({
       where: {
         userId: +id,
+        deletedAt: null,
       },
       include: {
         LinkedOrder: {
@@ -234,20 +235,25 @@ class OrderService {
 
     // TODO -- manage the deletedAt and out the payment in failed .
 
-    const order = await prisma.payment.findMany({
+    const order = await prisma.order.findMany({
       where: {
-        OrderId: {
+        id: {
           in: ids,
         },
+        deletedAt: null,
       },
-      select: {
-        status: true,
-        amount: true,
+      include: {
+        Payment: {
+          select: {
+            status: true,
+            amount: true,
+          },
+        },
       },
     });
 
     if (order.length === 0) {
-      throw new Error("No orders : " + ids + " for user with Id : " + userId);
+      throw new Error("No orders: " + ids + " for user with Id: " + userId);
     }
 
     let total = 0;
@@ -260,25 +266,26 @@ class OrderService {
       total += order[i].amount;
     }
 
-    return await prisma.$transaction([
-      prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          balance: {
-            increment: total * (90 / 100),
-          },
-        },
-        select: {
-          name: true,
-          email: true,
-          phone: true,
-          imagePath: true,
-          balance: true,
-        },
-      }),
-      prisma.order.updateMany({
+    return await prisma.$transaction(async (tx) => {
+      // prisma.user.update({
+      //   where: {
+      //     id: userId,
+      //   },
+      //   data: {
+      //     balance: {
+      //       increment: total * (90 / 100),
+      //     },
+      //   },
+      //   select: {
+      //     name: true,
+      //     email: true,
+      //     phone: true,
+      //     imagePath: true,
+      //     balance: true,
+      //   },
+      // }),
+      UserService.editBalance({ userId, balance: total * (90 / 100) }, tx);
+      return tx.order.updateMany({
         data: {
           deletedAt: new Date(),
         },
@@ -291,11 +298,11 @@ class OrderService {
             },
           },
         },
-      }),
-    ]);
+      });
+    });
   }
 
-  static async getAllOrders() {
+  static async getAllOrders(data) {
     return await prisma.order.findMany({
       where: {
         deletedAt: null,
@@ -310,10 +317,13 @@ class OrderService {
         },
         Payment: true,
       },
+      take: data.take,
+      skip: data.skip,
     });
   }
 
-  static async getAllAllOrders() {
+  // All categories for the manager (even deleted categories)
+  static async getAllAllOrders(data) {
     return await prisma.order.updateMany({
       include: {
         LinkedOrder: {
@@ -325,6 +335,8 @@ class OrderService {
         },
         Payment: true,
       },
+      take: data.take,
+      skip: data.skip,
     });
   }
 }

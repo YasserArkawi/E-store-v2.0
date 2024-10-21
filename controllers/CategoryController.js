@@ -4,7 +4,10 @@ const fs = require("fs");
 module.exports = {
   getAllCategories: async (req, res) => {
     try {
-      const results = await CategoryService.getAllCategories();
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take };
+      const results = await CategoryService.getAllCategories(data);
       res.status(200).send({
         data: results,
         success: true,
@@ -17,6 +20,7 @@ module.exports = {
       });
     }
   },
+
   getCategoryById: async (req, res) => {
     try {
       const result = await CategoryService.getCategoryById(req.params.id);
@@ -34,6 +38,25 @@ module.exports = {
   },
 
   // manager ///////////////////////////////////////////////
+
+  getAllAllCategories: async (req, res) => {
+    try {
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take };
+      const results = await CategoryService.getAllAllCategories(data);
+      res.status(200).send({
+        data: results,
+        success: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({
+        data: error.meta?.cause || error.meta?.target || error.message,
+        success: false,
+      });
+    }
+  },
 
   addCategory: async (req, res) => {
     try {
@@ -55,6 +78,7 @@ module.exports = {
       });
     }
   },
+
   editCategory: async (req, res) => {
     try {
       const data = req.body;
@@ -76,6 +100,7 @@ module.exports = {
       });
     }
   },
+
   deleteCategory: async (req, res) => {
     try {
       const id = req.params.id;
@@ -86,9 +111,9 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
-      if (req.file?.path) {
-        fs.unlinkSync(req.file?.path);
-      }
+      // if (req.file?.path) {
+      //   fs.unlinkSync(req.file?.path);
+      // }
       res.status(400).send({
         data: error.meta?.cause || error.meta?.target || error.message,
         success: false,

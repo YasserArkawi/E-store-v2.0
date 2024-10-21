@@ -78,10 +78,8 @@ class UserService {
         id: +data.userId,
       },
     });
-    if (oldUser.imagePath !== null && data.imagePath !== null) {
-      fs.unlinkSync(oldUser.imagePath);
-    }
-    return await prisma.user.update({
+
+    const updatedUser = await prisma.user.update({
       where: {
         id: +data.userId,
       },
@@ -93,6 +91,10 @@ class UserService {
         imagePath: data.imagePath || oldUser.imagePath,
       },
     });
+    if (oldUser.imagePath !== null && data.imagePath !== null) {
+      fs.unlinkSync(oldUser.imagePath);
+    }
+    return updatedUser;
   }
   // manager /////////////////////////////////////////////////////
 
@@ -112,8 +114,11 @@ class UserService {
     });
   }
 
-  static async getAllUsers() {
-    return await prisma.user.findMany({});
+  static async getAllUsers(data) {
+    return await prisma.user.findMany({
+      take: data.take,
+      skip: data.skip,
+    });
   }
 
   static async editBalance(data, tx) {

@@ -5,7 +5,7 @@ const {
   getCategoryById,
   addCategory,
   editCategory,
-  deleteCategory,
+  deleteCategory,getAllAllCategories
 } = require("../controllers/CategoryController");
 const { getProductsByCategory } = require("../controllers/ProductController");
 const { jwtMiddleware } = require("../auth/auth");
@@ -26,6 +26,7 @@ router.get("/product/:id", getProductsByCategory);
 router.use(jwtMiddleware);
 router.use(managerValidation);
 
+router.get("/all", getAllAllCategories);
 router.post(
   "/",
   categoryUpload.single("image"),

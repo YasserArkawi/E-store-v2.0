@@ -3,17 +3,7 @@ const prisma = new PrismaClient();
 const fs = require("fs");
 
 class ProductService {
-  static async getAllProducts() {
-    return await prisma.product.findMany({
-      where: {
-        availables: {
-          not: null || 0,
-        },
-        deletedAt: null,
-      },
-    });
-  }
-
+  // This service function is used in making order in order service;
   static async getAllProductsByIds(ids) {
     const result = await prisma.product.findMany({
       where: {
@@ -26,8 +16,32 @@ class ProductService {
     return result;
   }
 
-  static async getAllAllProducts() {
-    return await prisma.product.findMany({});
+  // All products for the manager (even deleted products)
+  static async getAllAllProducts(data) {
+    return await prisma.product.findMany({
+      take: data.take,
+      skip: data.skip,
+    });
+  }
+
+  static async getAllProducts(data) {
+    return await prisma.product.findMany({
+      where: {
+        availables: {
+          not: null || 0,
+        },
+        deletedAt: null,
+        price: data.hPrice
+          ? {
+              lte: data.hPrice,
+            }
+          : {
+              gte: 0,
+            },
+      },
+      take: data.take,
+      skip: data.skip,
+    });
   }
 
   static async getProductById(id) {
@@ -38,14 +52,21 @@ class ProductService {
     });
   }
 
-  static async getProductsByCategory(id) {
-    return await prisma.product.findFirst({
+  static async getProductsByCategory(id, hPrice = undefined) {
+    return await prisma.product.findMany({
       where: {
         categoryId: +id,
         availables: {
           not: null || 0,
         },
         deletedAt: null,
+        price: hPrice
+          ? {
+              lte: hPrice,
+            }
+          : {
+              gte: 0,
+            },
       },
     });
   }
@@ -136,22 +157,28 @@ class ProductService {
         deletedAt: null,
       },
     });
-    const deleted = await prisma.product.updateMany({
-      where: {
-        id: {
-          in: ids,
+    if (deleteProducts.length === 0) {
+      return {
+        count: 0,
+      };
+    } else {
+      const softDeleted = await prisma.product.updateMany({
+        where: {
+          id: {
+            in: ids,
+          },
         },
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
-    deleteProducts.map((element) => {
-      if (element.imagePath !== null) {
-        fs.unlinkSync(element.imagePath);
-      }
-    });
-    return deleted;
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+      deleteProducts.map((element) => {
+        if (element.imagePath !== null) {
+          fs.unlinkSync(element.imagePath);
+        }
+      });
+      return softDeleted;
+    }
   }
 }
 
