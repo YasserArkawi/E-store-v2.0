@@ -133,7 +133,7 @@ class OrderService {
         //     id: userId,
         //   },
         // });
-        return order;
+        return { order, linkedOrders, userId: user.id, userEmail: user.email };
       },
       { timeout: 10000 }
     );
@@ -151,7 +151,6 @@ class OrderService {
         },
       },
     });
-
     let i = 0;
     let ids = [];
     const quantities = order?.LinkedOrder.map((lo) => {
@@ -161,8 +160,9 @@ class OrderService {
 
     if (order !== null && order.Payment.status === "PENDING") {
       if (data.paymentStatus === "ACCEPTED") {
-        return await prisma.$transaction([
-          prisma.payment.update({
+        return await prisma.$transaction(async (tx) => {
+          const user = await UserService.getUserById(order.userId);
+          const payment = await tx.payment.update({
             where: {
               id: data.paymentId,
             },
@@ -170,21 +170,27 @@ class OrderService {
               paymentDate: new Date(),
               status: data.paymentStatus,
             },
-          }),
-        ]);
+          });
+          return {
+            payment,
+            userId: user.id,
+            userEmail: user.email,
+            userBalance: user.balance,
+          };
+        });
       } else if (data.paymentStatus === "REJECTED") {
-        return await prisma.$transaction([
-          prisma.user.update({
+        return await prisma.$transaction(async (tx) => {
+          const user = await tx.user.update({
             where: {
-              id: data.userId,
+              id: order.userId,
             },
             data: {
               balance: {
                 increment: (order.total * 90) / 100,
               },
             },
-          }),
-          prisma.product.updateMany({
+          });
+          await tx.product.updateMany({
             where: {
               id: {
                 in: ids,
@@ -195,16 +201,24 @@ class OrderService {
                 increment: quantities[i++],
               },
             },
-          }),
-          prisma.payment.update({
+          });
+          const payment = await tx.payment.update({
             where: {
               id: data.paymentId,
             },
             data: {
               status: data.paymentStatus,
             },
-          }),
-        ]);
+          });
+          return {
+            payment,
+            userId: user.id,
+            userEmail: user.email,
+            userBalance: user.balance,
+          };
+        });
+      } else {
+        return "Pending";
       }
     } else {
       throw new Error("Payment not found");
@@ -231,10 +245,6 @@ class OrderService {
   }
 
   static async deleteOrder(userId, ids) {
-    // const ids = data.ids;
-
-    // TODO -- manage the deletedAt and out the payment in failed .
-
     const order = await prisma.order.findMany({
       where: {
         id: {
@@ -259,11 +269,11 @@ class OrderService {
     let total = 0;
 
     for (let i = 0; i < order.length; i++) {
-      const element = order[i].status;
+      const element = order[i].Payment.status;
       if (element !== "PENDING") {
         throw new Error("Operation can not be done");
       }
-      total += order[i].amount;
+      total += order[i].Payment.amount;
     }
 
     return await prisma.$transaction(async (tx) => {
@@ -284,8 +294,11 @@ class OrderService {
       //     balance: true,
       //   },
       // }),
-      UserService.editBalance({ userId, balance: total * (90 / 100) }, tx);
-      return tx.order.updateMany({
+      const user = await UserService.editBalance(
+        { userId, balance: total * (90 / 100) },
+        tx
+      );
+      const order = await tx.order.updateMany({
         data: {
           deletedAt: new Date(),
         },
@@ -299,6 +312,7 @@ class OrderService {
           },
         },
       });
+      return { order, user };
     });
   }
 

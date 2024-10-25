@@ -19,7 +19,7 @@ const deleteOrdersValidator = joi.object({
 });
 
 const manageOrdersValidator = joi.object({
-  userId: joi.number().integer().min(1).required(),
+  // userId: joi.number().integer().min(1).required(),
   paymentStatus: joi.string().required(),
 });
 

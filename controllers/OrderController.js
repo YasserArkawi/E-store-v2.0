@@ -1,12 +1,20 @@
 const OrderService = require("../services/OrderService");
+const sendEmail = require("../helper/SendMail");
 module.exports = {
   makeNewOrder: async (req, res) => {
     try {
       const data = req.body;
       data.userId = req.user.id;
       const result = await OrderService.makeNewOrder(data);
+      await sendEmail(
+        result.userEmail,
+        "Order Made!",
+        `Order made from user: ${result.userId}, Order Id: ${result.order.id}.
+        Ordered products: 
+        ${result.linkedOrders}.`
+      );
       res.status(201).send({
-        order: result,
+        order: result.order,
         success: true,
       });
     } catch (error) {
@@ -79,6 +87,11 @@ module.exports = {
       const id = req.user.id;
       const data = req.body;
       const result = await OrderService.deleteOrder(id, data.ids);
+      await sendEmail(
+        result.user.email,
+        "Deleted Order!",
+        `Order deleted from user: ${result.user.id}, Order Id: ${data.ids}.`
+      );
       res.status(200).send({
         data: result,
         success: true,
@@ -135,8 +148,15 @@ module.exports = {
   manageOrder: async (req, res) => {
     try {
       const data = req.body;
-      data.paymentId = +req.params.id;
+      data.paymentId = +req.params.paymentId;
       const result = await OrderService.manageOrder(data);
+      if (result !== "Pending") {
+        await sendEmail(
+          result.userEmail,
+          "Managed Order!",
+          `Order managed from user: ${result.userId}, Order Id: ${result.payment.OrderId}, Status of the order: ${result.payment.status}, User balance: ${result.userBalance} `
+        );
+      }
       res.status(200).send({
         data: result,
         success: true,

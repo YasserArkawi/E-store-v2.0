@@ -1,6 +1,7 @@
 const UserServices = require("../services/UserService");
 const { generateToken } = require("../auth/auth");
 const fs = require("fs");
+const sendEmail = require("../helper/SendMail");
 
 module.exports = {
   registerUser: async (req, res) => {
@@ -15,6 +16,7 @@ module.exports = {
         image: result.imagePath,
         success: true,
       });
+      sendEmail(result.email, "Welcome!", "You signed up to our application!");
     } catch (error) {
       console.log(error);
       if (req.file?.path) {
@@ -34,6 +36,11 @@ module.exports = {
       result.password = null;
       result.imagePath = null;
       const token = generateToken(result);
+      sendEmail(
+        result.email,
+        "Welcome Back!",
+        "You logged in to our application!"
+      );
       res.status(200).send({
         id: result.id,
         token: token,
@@ -42,7 +49,7 @@ module.exports = {
     } catch (error) {
       console.log(error);
       res.send({
-        data: error.meta?.cause || error.meta?.target || error.message,
+        data: error.meta?.cause || error.meta?.target || error.message || error,
         token: null,
         success: false,
       });
@@ -51,7 +58,7 @@ module.exports = {
 
   managerLogin: async (req, res) => {
     try {
-      const data = req.body;      
+      const data = req.body;
       const result = await UserServices.managerLogin(data);
       result.password = null;
       const token = generateToken(result);
@@ -80,6 +87,11 @@ module.exports = {
         data: result,
         success: true,
       });
+      sendEmail(
+        result.email,
+        "Edited!",
+        `Account with ID: ${data.userId} has edited the account.`
+      );
     } catch (error) {
       console.log(error);
       if (req.file?.path) {

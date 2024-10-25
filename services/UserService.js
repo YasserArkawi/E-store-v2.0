@@ -134,7 +134,13 @@ class UserService {
       },
       select: {
         id: true,
+        name: true,
+        email: true,
+        phone: true,
         balance: true,
+        password: false,
+        imagePath: false,
+        isAdmin: false,
       },
     });
   }

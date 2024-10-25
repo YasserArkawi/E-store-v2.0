@@ -29,7 +29,7 @@ router.use(managerValidation);
 
 router.get("/", getAllOrders);
 router.get("/all", getAllAllOrders);
-router.put("/manage/:id", validate(manageOrdersValidator), manageOrder);
+router.put("/manage/:paymentId", validate(manageOrdersValidator), manageOrder);
 // router.get("/payment", getAllOrders);
 
 module.exports = router;
