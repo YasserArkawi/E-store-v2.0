@@ -54,7 +54,6 @@ class ProductService {
       take: data.take,
       skip: data.skip,
     });
-    // const images = await prisma.productImages.findMany({ where: {ProductId:} });
   }
 
   static async getProductById(id) {
@@ -132,11 +131,6 @@ class ProductService {
     const images = await prisma.productImages.createMany({
       data: data.images,
     });
-    // const images = await ImagesService.addImages(
-    //   data.images,
-    //   product.id,
-    //   Types.PRODUCT
-    // );
     return { product, images: data.images };
   }
 
@@ -148,38 +142,10 @@ class ProductService {
     return await prisma.productImages.createMany({
       data: list,
     });
-    // return await prisma.$transaction(async (tx) => {
-    //   for (let i = 0; i < data.newImages.length; i++) {
-    //     await tx.productImages.create({
-    //       data: {
-
-    //         image: data.newImages[i],
-    //       },
-    //     });
-    //   }
-    // });
   }
 
   static async editProduct(data) {
-    // EXPLAINING :
-
-    // takes the first image and put it in the imagePath in the product, and the rest of the images
-    // put in images(product) without the first image ,
-    // the updated product takes the first image of the images if it exists or the old image .
-
-    // takes all the images from the front end and compare them in the controller, if the image in the same index of the two images list (make a query to get images for the product in the controller)
-    // the old images and the new ones are the same keep the image in the new
-
     const oldProduct = await this.getProductById(+data.id);
-    // const oldImages = await ImagesService.getImagesById(
-    //   +data.id,
-    //   Types.PRODUCT
-    // );
-    // oldImages.filter((image) => {
-    //   image.image !== oldProduct.imagePath;
-    // });
-    // console.log("🚀 ~ ProductService ~ oldImages.map ~ oldImages:", oldImages);
-
     let newCount;
     if (+data?.rating) {
       newCount = 1;
@@ -207,69 +173,12 @@ class ProductService {
         deletedAt: null,
       },
     });
-    // let images,
-    //   i = 0;
-    // if (data?.newImages) {
-    //   if (
-    //     data?.updatedOldImages.length === 0 ||
-    //     data.newImages.length > data.updatedOldImages.length
-    //   ) {
-    //     let diff = data.newImages.length - data.updatedOldImages.length;
-    //     let imageObjects = [];
-    //     if (diff >= 0) {
-    //       data.newImages.map((image) => {
-    //         imageObjects.push({ image, ProductId: +data.id });
-    //       });
-    //     } else {
-    //       for (let i = 0; i < diff; i++) {
-    //         imageObjects.push({
-    //           image: data.newImages[-i],
-    //           ProductId: +data.id,
-    //         });
-    //       }
-    //     }
-    //     console.log(
-    //       "🚀 ~ ProductService ~ editProduct ~ imageObjects:",
-    //       imageObjects
-    //     );
-    //     images = await prisma.productImages.createMany({
-    //       data: imageObjects,
-    //     });
-    //   } else {
-    //     images = await prisma.productImages.updateMany({
-    //       where: {
-    //         ProductId: +data.id,
-    //         image: {
-    //           in: data.updatedOldImages,
-    //         },
-    //       },
-    //       data: {
-    //         image: data.newImages[i++],
-    //       },
-    //     });
-    //   }
-    // }
-    // if (data?.newImages.length !== 0 && data?.updatedOldImages.length !== 0) {
-    //   data.updatedOldImages.map((image) => {
-    //     fs.unlinkSync(image);
-    //   });
-    // }
     return { product: updatedProduct };
   }
 
   static async editProductImages(data) {
-    // let i = 0;
     const oldImagesIds = JSON.parse(data.oldImagesIds);
-    console.log(
-      "🚀 ~ ProductService ~ editProductImages ~ oldImagesIds:",
-      oldImagesIds
-    );
     const newImages = data.newImages;
-    console.log(
-      "🚀 ~ ProductService ~ editProductImages ~ newImages:",
-      newImages
-    );
-
     const updatedImages = await prisma.$transaction(async (tx) => {
       for (let i = 0; i < newImages.length; i++) {
         await tx.productImages.update({
@@ -281,38 +190,8 @@ class ProductService {
           },
         });
       }
-      // await newImages.forEach(async (element) => {
-      //   console.log(
-      //     "🚀 ~ ProductService ~ awaitnewImages.forEach ~ element:",
-      //     element
-      //   );
-      //   await tx.productImages.update({
-      //     where: {
-      //       id: {
-      //         in: oldImagesIds,
-      //       },
-      //     },
-      //     data: {
-      //       image: element,
-      //     },
-      //   });
-      // });
       return;
     });
-
-    // const updatedImages = await prisma.productImages.updateMany({
-    //   where: {
-    //     id: {
-    //       in: oldImagesIds,
-    //     },
-    //     // ProductId: +data.id,
-    //   },
-    //   data: {
-    //     image: newImages.at(i++),
-    //   },
-    // });
-    // console.log(i);
-
     return { count: updatedImages, newImages: newImages };
   }
 
