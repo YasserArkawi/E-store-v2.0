@@ -3,9 +3,12 @@ const fs = require("fs");
 const validate = (schema) => {
   return (req, res, next) => {
     // console.log(req.body);
-    // if (req.file?.path) {
-    //   req.body.imagePath = req.file.path;
-    // }
+    if (req.files) {
+      req.images = req.files.map((file) => {
+        console.log("🚀 ~ req.images=req.files.map ~ file:", file);
+        return file.path;
+      });
+    }
 
     const { error } = schema.validate(req.body, { abortEarly: true });
     if (error) {

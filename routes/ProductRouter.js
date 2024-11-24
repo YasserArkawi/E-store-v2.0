@@ -9,6 +9,9 @@ const {
   getProductById,
   getAllAllProducts,
   getRecommend,
+  editImagesProduct,
+  deleteImagesProduct,
+  addImagesProduct,
 } = require("../controllers/ProductController");
 const { jwtMiddleware } = require("../auth/auth");
 const { managerValidation } = require("../middlewares/ManagerValidation");
@@ -40,12 +43,10 @@ router.post(
   validate(createProductsValidator),
   addProduct
 );
-router.put(
-  "/:id",
-  productUpload.single("image"),
-  validate(updateProductsValidator),
-  editProduct
-);
+router.put("/:id", validate(updateProductsValidator), editProduct);
+router.post("/images/:id", productUpload.array("newImages"), addImagesProduct);
+router.put("/images/:id", productUpload.array("newImages"), editImagesProduct);
+router.delete("/images", deleteImagesProduct);
 router.delete("/", validate(deleteProductsValidator), deleteProduct);
 
 module.exports = router;

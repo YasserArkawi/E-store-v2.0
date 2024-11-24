@@ -6,6 +6,7 @@ const createProductsValidator = joi.object({
   descreption: joi.string().min(2).max(191).required(),
   price: joi.number().min(0.0).required(),
   availables: joi.number().integer().required(),
+  images: joi.array().min(1).max(6).items(joi.string())
 });
 
 const updateProductsValidator = joi.object({

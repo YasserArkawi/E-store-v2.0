@@ -16,7 +16,7 @@ const {
 const validate = require("../middlewares/ValidateRequest");
 const { jwtMiddleware } = require("../auth/auth");
 const { managerValidation } = require("../middlewares/ManagerValidation");
-const enumMiddleware = require("../middlewares/Helper");
+const { enumMiddleware } = require("../middlewares/Enum");
 
 router.use(enumMiddleware);
 router.use(jwtMiddleware);

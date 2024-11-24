@@ -4,7 +4,7 @@ const env = require("dotenv");
 const mainRoutes = require("./routes/MainRoutes");
 env.config();
 
-// query price for get & recommendation system & pagination
+// image list table in the prisma models to add lists of inmages to every model that takes imagePath
 
 app.use(express.json());
 

@@ -1,23 +1,31 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const fs = require("fs");
+const { Types } = require("../helper/TypesEnum");
+const ImagesService = require("./ImagesService");
 
 class AdService {
   static async getAllAds() {
-    return await prisma.ad.findMany({
+    const ads = await prisma.ad.findMany({
       where: {
         deletedAt: null,
       },
     });
+    // const images = await ImagesService.getImagesByType(Types.AD);
+    // return { ads, images };
+    return ads;
   }
 
   static async getAdById(id) {
-    return await prisma.ad.findUnique({
+    const ad = await prisma.ad.findUnique({
       where: {
         id: +id,
         deletedAt: null,
       },
     });
+    // const images = await ImagesService.getImagesById(ad.id, Types.AD);
+    // return { ad, images };
+    return ad;
   }
 
   static async addAd(data) {
@@ -26,6 +34,7 @@ class AdService {
         descreption: data.descreption,
         title: data.title,
         imagePath: data.imagePath,
+        publisher: data.publisher,
       },
     });
   }
@@ -45,6 +54,7 @@ class AdService {
           descreption: data.descreption || ad.descreption,
           title: data.title || ad.title,
           imagePath: data.imagePath || ad.imagePath,
+          publisher: data.publisher || ad.publisher,
         },
       });
     });

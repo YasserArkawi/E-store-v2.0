@@ -2,11 +2,11 @@ function enumMiddleware(req, res, next) {
   if (req.body.paymentType) {
     const data = req.body.paymentType.toLowerCase();
     if (data === "visa") {
-      req.body.paymentType = types[0];
+      req.body.paymentType = paymentTypes[0];
     } else if (data === "master_card") {
-      req.body.paymentType = types[1];
+      req.body.paymentType = paymentTypes[1];
     } else if (data === "paypal") {
-      req.body.paymentType = types[2];
+      req.body.paymentType = paymentTypes[2];
     } else {
       return res.status(400).send({ enumError: "paymentType not valid." });
     }
@@ -26,7 +26,7 @@ function enumMiddleware(req, res, next) {
   next();
 }
 
-const types = ["VISA", "MASTER_CARD", "PAYPAL"];
+const paymentTypes = ["VISA", "MASTER_CARD", "PAYPAL"];
 const status = ["PENDING", "REJECTED", "ACCEPTED"];
 
-module.exports = enumMiddleware;
+module.exports = { enumMiddleware };

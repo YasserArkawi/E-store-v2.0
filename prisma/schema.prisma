@@ -18,6 +18,8 @@ model Ad {
   title       String
   descreption String
   imagePath   String?
+  publisher   String    @default("")
+  // images      Images[]
   deletedAt   DateTime?
 }
 
@@ -44,19 +46,21 @@ model User {
 }
 
 model Product {
-  id          Int           @id @default(autoincrement())
-  category    Category      @relation(references: [id], fields: [categoryId])
+  id          Int             @id @default(autoincrement())
+  category    Category        @relation(references: [id], fields: [categoryId])
   categoryId  Int
   title       String
   descreption String
-  rating      Float         @default(0)
-  ratingCount Int           @default(0)
+  rating      Float           @default(0)
+  ratingCount Int             @default(0)
   price       Float
-  availables  Int           @default(0)
+  availables  Int             @default(0)
   imagePath   String?
+  company     String          @default("")
   Like        Like[]
   Rating      Rating[]
   LinkedOrder LinkedOrder[]
+  Images      ProductImages[]
   deletedAt   DateTime?
 }
 
@@ -109,6 +113,13 @@ model Payment {
   paymentType PaymentType
 }
 
+model ProductImages {
+  id        Int     @id @default(autoincrement())
+  image     String
+  Product   Product @relation(references: [id], fields: [ProductId], onDelete: Cascade)
+  ProductId Int
+}
+
 enum PaymentStatus {
   PENDING
   REJECTED
@@ -120,3 +131,21 @@ enum PaymentType {
   MASTER_CARD
   PAYPAL
 }
+
+enum Type {
+  AD
+  PRODUCT
+  USER
+  CATEGORY
+}
+
+// model Images {
+//   id       Int    @id @default(autoincrement())
+//   image    String
+//   objectId Int
+//   type     Type
+
+//   // Ad   Ad  @relation(fields: [adId], references: [id])
+//   // adId Int
+//   // @@unique([objectId, type])
+// }
