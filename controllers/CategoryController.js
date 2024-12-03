@@ -2,7 +2,7 @@ const CategoryService = require("../services/CategoryService");
 const fs = require("fs");
 
 module.exports = {
-  getAllCategories: async (req, res) => {
+  getAllCategories: async (req, res,next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -13,15 +13,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getCategoryById: async (req, res) => {
+  getCategoryById: async (req, res,next) => {
     try {
       const result = await CategoryService.getCategoryById(req.params.id);
       res.status(200).send({
@@ -29,17 +25,13 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
   // manager ///////////////////////////////////////////////
 
-  getAllAllCategories: async (req, res) => {
+  getAllAllCategories: async (req, res,next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -50,15 +42,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  addCategory: async (req, res) => {
+  addCategory: async (req, res,next) => {
     try {
       const data = req.body;
       data.imagePath = req.file?.path;
@@ -68,18 +56,14 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file?.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  editCategory: async (req, res) => {
+  editCategory: async (req, res,next) => {
     try {
       const data = req.body;
       data.id = req.params.id;
@@ -90,18 +74,14 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file?.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteCategory: async (req, res) => {
+  deleteCategory: async (req, res,next) => {
     try {
       const id = req.params.id;
       const result = await CategoryService.deleteCategory(id);
@@ -110,14 +90,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      // if (req.file?.path) {
-      //   fs.unlinkSync(req.file?.path);
-      // }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

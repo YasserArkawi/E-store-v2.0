@@ -1,7 +1,7 @@
 const AdsService = require("../services/AdsService");
 const fs = require("fs");
 module.exports = {
-  getAllAds: async (req, res) => {
+  getAllAds: async (req, res, next) => {
     try {
       const results = await AdsService.getAllAds();
       res.status(200).send({
@@ -9,15 +9,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getAdById: async (req, res) => {
+  getAdById: async (req, res, next) => {
     try {
       const id = req.params.id;
       const results = await AdsService.getAdById(id);
@@ -26,17 +22,13 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
   // manager///////////////////////////////////////////////
 
-  addAd: async (req, res) => {
+  addAd: async (req, res, next) => {
     try {
       const data = req.body;
       data.imagePath = req.file?.path;
@@ -46,18 +38,14 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteAd: async (req, res) => {
+  deleteAd: async (req, res, next) => {
     try {
       const ids = req.body.ids;
       const result = await AdsService.deleteAd(ids);
@@ -66,15 +54,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  updateAd: async (req, res) => {
+  updateAd: async (req, res, next) => {
     try {
       const data = req.body;
       data.id = req.params.id;
@@ -85,14 +69,10 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

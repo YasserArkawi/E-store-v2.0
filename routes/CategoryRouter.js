@@ -5,23 +5,27 @@ const {
   getCategoryById,
   addCategory,
   editCategory,
-  deleteCategory,getAllAllCategories
+  deleteCategory,
+  getAllAllCategories,
 } = require("../controllers/CategoryController");
 const { getProductsByCategory } = require("../controllers/ProductController");
 const { jwtMiddleware } = require("../auth/auth");
 const { managerValidation } = require("../middlewares/ManagerValidation");
-const { categoryUpload } = require("../middlewares/Upload");
+const { categoryUpload } = require("../middlewares/UploadPath.js");
 const validate = require("../middlewares/ValidateRequest.js");
 const {
   createCategoryValidator,
   editCategoryValidator,
 } = require("../middlewares/validators/CategoryValidators");
 
+// cahing
+const apicache = require("apicache");
+const cache = apicache.middleware;
 // /////////////////////////////////////////////////////////////////////////
 
-router.get("/", getAllCategories);
+router.get("/", cache("2 minutes"), getAllCategories);
 router.get("/:id", getCategoryById);
-router.get("/product/:id", getProductsByCategory);
+router.get("/product/:id", cache("2 minutes"), getProductsByCategory);
 
 router.use(jwtMiddleware);
 router.use(managerValidation);
@@ -40,7 +44,5 @@ router.put(
   editCategory
 );
 router.delete("/:id", deleteCategory);
-
-// error middlware and write next() in catch in controllers
 
 module.exports = router;

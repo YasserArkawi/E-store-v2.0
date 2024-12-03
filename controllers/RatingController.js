@@ -1,6 +1,6 @@
 const RatingService = require("../services/RatingService");
 module.exports = {
-  getRateByProduct: async (req, res) => {
+  getRateByProduct: async (req, res, next) => {
     try {
       const result = await RatingService.getRateByProduct(req.params.id);
       res.status(200).send({
@@ -8,15 +8,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  addRate: async (req, res) => {
+  addRate: async (req, res, next) => {
     try {
       const data = req.body;
       data.userId = req.user.id;
@@ -26,11 +22,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
@@ -54,7 +46,7 @@ module.exports = {
 
   // manager //////////////////////////////////////////////////////////
 
-  deleteRatesByUser: async (req, res) => {
+  deleteRatesByUser: async (req, res, next) => {
     try {
       const result = await RatingService.deleteRatesByUser(req.params.id);
       res.status(200).send({
@@ -62,15 +54,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteRatesByProduct: async (req, res) => {
+  deleteRatesByProduct: async (req, res, next) => {
     try {
       const result = await RatingService.deleteRatesByProduct(req.params.id);
       res.status(200).send({
@@ -78,11 +66,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

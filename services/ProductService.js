@@ -1,8 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const fs = require("fs");
-const ImagesService = require("./ImagesService");
-const { Types } = require("../helper/TypesEnum");
 
 class ProductService {
   // This service function is used in making order in order service;
@@ -125,13 +123,11 @@ class ProductService {
         descreption: data.descreption,
         price: +data.price,
         availables: +data.availables,
-        imagePath: data.images[0],
+        // imagePath: data.images[0],
       },
     });
-    const images = await prisma.productImages.createMany({
-      data: data.images,
-    });
-    return { product, images: data.images };
+
+    return { product };
   }
 
   static async addImagesProduct(data) {

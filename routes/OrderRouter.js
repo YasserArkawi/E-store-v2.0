@@ -16,9 +16,11 @@ const {
 const validate = require("../middlewares/ValidateRequest");
 const { jwtMiddleware } = require("../auth/auth");
 const { managerValidation } = require("../middlewares/ManagerValidation");
-const { enumMiddleware } = require("../middlewares/Enum");
+const { paymentEnumMiddleware } = require("../middlewares/PaymentEnum");
 
-router.use(enumMiddleware);
+////////////////////////////////////////////////////////////////////////////////////////
+
+router.use(paymentEnumMiddleware);
 router.use(jwtMiddleware);
 
 router.post("/", validate(createOrderValidator), makeNewOrder);

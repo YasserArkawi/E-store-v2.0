@@ -1,7 +1,7 @@
 const LikesService = require("../services/LikesService");
 
 module.exports = {
-  getLikesByUser: async (req, res) => {
+  getLikesByUser: async (req, res, next) => {
     try {
       const userId = req.user.id;
       const result = await LikesService.getLikesByUser(userId);
@@ -10,15 +10,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  addLike: async (req, res) => {
+  addLike: async (req, res, next) => {
     try {
       const userId = req.user.id;
       const data = req.body;
@@ -33,15 +29,11 @@ module.exports = {
         });
       }
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteLike: async (req, res) => {
+  deleteLike: async (req, res, next) => {
     try {
       const userId = req.user.id;
       const data = req.body;
@@ -52,15 +44,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getLikesByProduct: async (req, res) => {
+  getLikesByProduct: async (req, res, next) => {
     try {
       const productId = req.params.id;
       const result = await LikesService.getLikesByProduct(productId);
@@ -69,11 +57,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

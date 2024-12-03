@@ -13,16 +13,28 @@ function multerUpload(destenation) {
   const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-      const allowedTypes = [
+      let allowedTypes = [
         "image/png",
         "image/jpeg",
         "image/jpg",
         "image/gif",
+        "video/mp4",
+        "video/m4a",
       ];
+      console.log(req.url);
+      if (req.originalUrl.includes("/store/ad")) {
+        allowedTypes.push("video/mp4");
+        allowedTypes.push("video/m4a");
+      }
       if (!allowedTypes.includes(file.mimetype)) {
-        return cb(new Error("Not allowed image type"));
+        return cb(new Error("Not allowed file type."));
       }
       cb(null, true);
+      allowedTypes.filter((element) => {
+        return !element === "video/mp4" || !element === "video/m4a"
+          ? element
+          : null;
+      });
     },
   });
   return upload;

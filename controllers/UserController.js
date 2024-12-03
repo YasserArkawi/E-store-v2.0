@@ -4,11 +4,12 @@ const fs = require("fs");
 const sendEmail = require("../helper/SendMail");
 
 module.exports = {
-  registerUser: async (req, res) => {
+  registerUser: async (req, res, next) => {
     try {
       const data = req.body;
       data.imagePath = req.file?.path;
       const result = await UserServices.registerUser(data);
+      sendEmail(result.email, "Welcome!", "You signed up to our application!");
       res.status(201).send({
         id: result.id,
         name: result.name,
@@ -16,20 +17,15 @@ module.exports = {
         image: result.imagePath,
         success: true,
       });
-      sendEmail(result.email, "Welcome!", "You signed up to our application!");
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  loginUser: async (req, res) => {
+  loginUser: async (req, res, next) => {
     try {
       const data = req.body;
       const result = await UserServices.loginUser(data);
@@ -47,16 +43,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.send({
-        data: error.meta?.cause || error.meta?.target || error.message || error,
-        token: null,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  managerLogin: async (req, res) => {
+  managerLogin: async (req, res, next) => {
     try {
       const data = req.body;
       const result = await UserServices.managerLogin(data);
@@ -68,16 +59,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        token: null,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  editUser: async (req, res) => {
+  editUser: async (req, res, next) => {
     try {
       const data = req.body;
       data.userId = req.user.id;
@@ -93,20 +79,16 @@ module.exports = {
         `Account with ID: ${data.userId} has edited the account.`
       );
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
   // manager /////////////////////////////////////////////////////
 
-  getUserById: async (req, res) => {
+  getUserById: async (req, res, next) => {
     try {
       const id = req.params.id;
       const result = await UserServices.getUserById(id);
@@ -115,15 +97,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getUserByName: async (req, res) => {
+  getUserByName: async (req, res, next) => {
     try {
       const name = req.body.name;
       const result = await UserServices.getUserByName(name);
@@ -132,15 +110,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getAllUsers: async (req, res) => {
+  getAllUsers: async (req, res, next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -155,15 +129,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  editBalance: async (req, res) => {
+  editBalance: async (req, res, next) => {
     try {
       const data = req.body;
       data.userId = req.params.id;
@@ -174,11 +144,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

@@ -13,6 +13,7 @@ const validate = (schema) => {
     const { error } = schema.validate(req.body, { abortEarly: true });
     if (error) {
       console.log(__dirname + ": ", error);
+      console.log(req.body);
       if (req.file?.path) {
         fs.unlinkSync(req.file.path);
       }

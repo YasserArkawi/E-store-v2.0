@@ -1,8 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const fs = require("fs");
-const { Types } = require("../helper/TypesEnum");
-const ImagesService = require("./ImagesService");
 
 class AdService {
   static async getAllAds() {

@@ -1,7 +1,7 @@
 const ProductService = require("../services/ProductService");
 const fs = require("fs");
 module.exports = {
-  getAllProducts: async (req, res) => {
+  getAllProducts: async (req, res, next) => {
     try {
       const hPrice = +req.query.price || undefined;
       const skip = +req.query.skip || undefined;
@@ -14,15 +14,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getProductById: async (req, res) => {
+  getProductById: async (req, res, next) => {
     try {
       const result = await ProductService.getProductById(req.params.id);
       res.status(200).send({
@@ -30,15 +26,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getRecommend: async (req, res) => {
+  getRecommend: async (req, res, next) => {
     try {
       const results = await ProductService.getProductsByCategory(
         req.params.categoryId
@@ -53,15 +45,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getProductsByCategory: async (req, res) => {
+  getProductsByCategory: async (req, res, next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -77,15 +65,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getMostRatedProducts: async (req, res) => {
+  getMostRatedProducts: async (req, res, next) => {
     try {
       const results = await ProductService.getMostRatedProducts();
       res.status(200).send({
@@ -93,17 +77,13 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
   // manager /////////////////////////////////////////////////////////
 
-  getAllAllProducts: async (req, res) => {
+  getAllAllProducts: async (req, res, next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -114,39 +94,29 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  addProduct: async (req, res) => {
+  addProduct: async (req, res, next) => {
     try {
       const data = req.body;
-      data.imagePath = req.file?.path;
       const result = await ProductService.addProduct(data);
       res.status(200).send({
         data: result.id,
         success: true,
       });
     } catch (error) {
-      console.log(error.message);
       if (req.file?.path) {
         fs.unlinkSync(req.file?.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  editProduct: async (req, res) => {
+  editProduct: async (req, res, next) => {
     try {
       let data = req.body;
-      console.log(data);
       data.id = req.params.id;
       const results = await ProductService.editProduct(data);
       res.status(200).send({
@@ -154,18 +124,14 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file?.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteProduct: async (req, res) => {
+  deleteProduct: async (req, res, next) => {
     try {
       const result = await ProductService.deleteProduct(req.body.ids);
       res.status(200).send({
@@ -173,18 +139,14 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       if (req.file?.path) {
         fs.unlinkSync(req.file?.path);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  addImagesProduct: async (req, res) => {
+  addImagesProduct: async (req, res, next) => {
     let imagesDelete = [];
     const data = req.body;
     data.newImages = req.files.map((file) => {
@@ -204,18 +166,14 @@ module.exports = {
         });
       }
     } catch (error) {
-      console.log(error);
       for (let i = 0; i < imagesDelete.length; i++) {
         fs.unlinkSync(imagesDelete[i]);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  editImagesProduct: async (req, res) => {
+  editImagesProduct: async (req, res, next) => {
     let imagesDelete = [];
     const data = req.body;
     data.newImages = req.files.map((file) => {
@@ -230,18 +188,14 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
       for (let i = 0; i < imagesDelete.length; i++) {
         fs.unlinkSync(imagesDelete[i]);
       }
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteImagesProduct: async (req, res) => {
+  deleteImagesProduct: async (req, res, next) => {
     try {
       // const id = req.params.id;
       const result = await ProductService.deleteImagesProduct(req.body.ids);
@@ -250,11 +204,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

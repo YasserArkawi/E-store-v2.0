@@ -225,10 +225,10 @@ class OrderService {
     }
   }
 
-  static async getOrdersByUserId(id) {
+  static async getOrdersByUserId(data) {
     return await prisma.order.findMany({
       where: {
-        userId: +id,
+        userId: +data.id,
         deletedAt: null,
       },
       include: {
@@ -241,6 +241,8 @@ class OrderService {
         },
         Payment: true,
       },
+      take: data.take,
+      skip: data.skip,
     });
   }
 

@@ -4,7 +4,7 @@ const sendEmail = async (to, sub, msg) => {
   const mailOptions = {
     from: {
       name: "Yasser E-store",
-      address: process.env.USER,
+      address: process.env.USER_EMAIL,
     },
     to: [to],
     subject: sub,

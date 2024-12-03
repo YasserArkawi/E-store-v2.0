@@ -1,0 +1,12 @@
+REQUEST: GET /store/product/   Fri Nov 29 2024 09:27:06 GMT+0300 (GMT+03:00) 
+ERROR: test Error Error: test Error
+    at __dirnameapp.js:45:11
+    at Layer.handle [as handle_request] (__dirname\node_modules\express\lib\router\layer.js:95:5)
+    at next (__dirname\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (__dirname\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (__dirname\node_modules\express\lib\router\layer.js:95:5)
+    at __dirname\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (__dirname\node_modules\express\lib\router\index.js:346:12)
+    at next (__dirname\node_modules\express\lib\router\index.js:280:10)
+    at __dirname\node_modules\express\lib\router\index.js:646:15
+    at next (__dirname\node_modules\express\lib\router\index.js:265:14)   Mon Dec 02 2024 15:20:40 GMT+0300 (GMT+03:00) 

@@ -23,12 +23,14 @@ const {
 } = require("../middlewares/validators/ProductValidators");
 const validate = require("../middlewares/ValidateRequest");
 
-const { productUpload } = require("../middlewares/Upload");
+const { productUpload } = require("../middlewares/UploadPath");
 
+const apicache = require("apicache");
+const cache = apicache.middleware;
 // //////////////////////////////////////////////////////////
 
-router.get("/", getAllProducts);
-router.get("/mostRated", getMostRatedProducts);
+router.get("/", cache("2 minutes"), getAllProducts);
+router.get("/mostRated", cache("2 minutes"), getMostRatedProducts);
 router.get("/byId/:id", getProductById);
 router.get("/recommend/:categoryId", getRecommend);
 
@@ -39,7 +41,6 @@ router.get("/all", getAllAllProducts);
 
 router.post(
   "/",
-  productUpload.single("image"),
   validate(createProductsValidator),
   addProduct
 );

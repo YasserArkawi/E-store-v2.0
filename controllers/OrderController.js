@@ -1,7 +1,7 @@
 const OrderService = require("../services/OrderService");
 const sendEmail = require("../helper/SendMail");
 module.exports = {
-  makeNewOrder: async (req, res) => {
+  makeNewOrder: async (req, res, next) => {
     try {
       const data = req.body;
       data.userId = req.user.id;
@@ -18,11 +18,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
   // editOrderByUserId: (req, res) => {
@@ -65,24 +61,23 @@ module.exports = {
   //   }
   // },
 
-  getOrdersByUserId: async (req, res) => {
+  getOrdersByUserId: async (req, res, next) => {
     try {
       const id = req.params.id;
-      const results = await OrderService.getOrdersByUserId(id);
+      const skip = +req.query.skip || undefined;
+      const take = +req.query.take || undefined;
+      const data = { skip, take, id };
+      const results = await OrderService.getOrdersByUserId(data);
       res.status(200).send({
         data: results,
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  deleteOrder: async (req, res) => {
+  deleteOrder: async (req, res, next) => {
     try {
       const id = req.user.id;
       const data = req.body;
@@ -97,17 +92,13 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
   // manager /////////////////////////////////////////////////
 
-  getAllOrders: async (req, res) => {
+  getAllOrders: async (req, res, next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -118,15 +109,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  getAllAllOrders: async (req, res) => {
+  getAllAllOrders: async (req, res, next) => {
     try {
       const skip = +req.query.skip || undefined;
       const take = +req.query.take || undefined;
@@ -137,15 +124,11 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 
-  manageOrder: async (req, res) => {
+  manageOrder: async (req, res, next) => {
     try {
       const data = req.body;
       data.paymentId = +req.params.paymentId;
@@ -154,7 +137,7 @@ module.exports = {
         await sendEmail(
           result.userEmail,
           "Managed Order!",
-          `Order managed from user: ${result.userId}, Order Id: ${result.payment.OrderId}, Status of the order: ${result.payment.status}, User balance: ${result.userBalance} `
+          `Order managed for user: ${result.userId}, Order Id: ${result.payment.OrderId}, Status of the order: ${result.payment.status}, User balance: ${result.userBalance} `
         );
       }
       res.status(200).send({
@@ -162,11 +145,7 @@ module.exports = {
         success: true,
       });
     } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        data: error.meta?.cause || error.meta?.target || error.message,
-        success: false,
-      });
+      next(error);
     }
   },
 };

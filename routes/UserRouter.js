@@ -11,13 +11,15 @@ const {
 } = require("../controllers/UserController");
 const { managerValidation } = require("../middlewares/ManagerValidation");
 const { jwtMiddleware } = require("../auth/auth");
-const { userUpload } = require("../middlewares/Upload.js");
+const { userUpload } = require("../middlewares/UploadPath.js");
 const validate = require("../middlewares/ValidateRequest");
 const {
   createUserValidator,
   updateUserValidator,
   updateBalanceValidator,
 } = require("../middlewares/validators/UserValidators");
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 router.post(
   "/signup",
